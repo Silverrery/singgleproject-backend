@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 Int                  @id @default(autoincrement())
+  email              String               @unique
+  password           String
+  full_name          String          
+  loan_transsactions loan_transsactions[]
+  security_logs      security_logs[]
+  audit_logs         Audit_logs[]
+  penalties          penalties[]
+  notifications      notifications[]
+}
+
+model loan_transsactions {
+  id           Int       @id @default(autoincrement())
+  user_id      Int
+  user         User      @relation(fields: [user_id], references: [id])
+  equipment_id Int
+  equipment    Equipment @relation(fields: [equipment_id], references: [id])
+  loan_data    DateTime
+  return_data  DateTime
+}
+
+model security_logs {
+  id             Int      @id @default(autoincrement())
+  user_id        Int
+  user           User     @relation(fields: [user_id], references: [id])
+  log_date       DateTime
+  activity       String
+  remarks        String
+  transaction_id Int
+}
+
+model Audit_logs {
+  id       Int      @id @default(autoincrement())
+  user_id  Int
+  user     User     @relation(fields: [user_id], references: [id])
+  log_date DateTime
+  activity String
+  remarks  String
+}
+
+model penalties {
+  id             Int    @id @default(autoincrement())
+  user_id        Int
+  user           User   @relation(fields: [user_id], references: [id])
+  transaction_id Int
+  penalty_amount String
+}
+
+model notifications {
+  id                Int      @id @default(autoincrement())
+  user_id           Int
+  user              User     @relation(fields: [user_id], references: [id])
+  message           String
+  notification_date DateTime
+  transaction_id    Int
+}
+
+model maintenance_logs {
+  id               Int       @id @default(autoincrement())
+  equipment_id     Int
+  equipment        Equipment @relation(fields: [equipment_id], references: [id])
+  maintenance_date DateTime
+  maintenance_type String
+}
+
+model Equipment {
+  id          Int    @id @default(autoincrement())
+  equipment   Int
+  description String
+  status      String
+
+  maintenance_logs   maintenance_logs[]
+  loan_transsactions loan_transsactions[]
+}
